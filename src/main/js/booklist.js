@@ -3,18 +3,53 @@ const React = require('react');
 const client = require('./client');
 const stompClient = require('./websocket-listener');
 const root = 'http://localhost:8080';
-import UpdateBookDialog from './updateBookDialog'
+const searchRoots = {
+    title:{
+        root: 'by-title',
+        queryParam: 'title'
+    },
+    author:{
+        root: 'by-author',
+        queryParam: 'name'
+    },
+    type:{
+        root: 'by-type',
+        queryParam: 'name'
+    },
+    format:{
+        root: 'by-format',
+        queryParam: 'name'
+    },
+    keyword:{
+        root: 'by-keyword',
+        queryParam: 'keywords'
+    },
+    whatever:{
+        root: 'by-whatever',
+        queryParam: 'whatever'
+    }
+};
+import UpdateBookDialog from './updateBookDialog';
 
 export default class BookList extends React.Component{
 
     constructor(props) {
         super(props);
-        this.state = {books:[]};
+        this.state = {
+            books:[],
+            searchCriteriaType: "author",
+            searchCriteriaValue: "",
+            sortField: "title"
+        };
         this.doAfterBookCreatedEvent = this.doAfterBookCreatedEvent.bind(this);
         this.doAfterBookDeletedEvent = this.doAfterBookDeletedEvent.bind(this);
         this.deleteBook = this.deleteBook.bind(this);
         this.editBook = this.editBook.bind(this);
         this.findBookBySelfLink = this.findBookBySelfLink.bind(this);
+        this.search = this.search.bind(this);
+        this.updateCriteriaSelect = this.updateCriteriaSelect.bind(this);
+        this.updateCriteriaValue = this.updateCriteriaValue.bind(this);
+        this.updateSortSelect = this.updateSortSelect.bind(this);
     }
 
     findBookBySelfLink(selfLink){
@@ -55,6 +90,34 @@ export default class BookList extends React.Component{
         console.log("Now editing book " + book._links.self.href);
     }
 
+    updateCriteriaSelect(event){
+        this.setState({searchCriteriaType: event.target.value}, this.search);
+    }
+
+    updateSortSelect(event){
+        this.setState({sortField: event.target.value}, this.search);
+    }
+
+    updateCriteriaValue(event){
+        this.setState({searchCriteriaValue: event.target.value}, this.search);
+    }
+
+    search(){
+        if(this.state.searchCriteriaValue){
+            client({method: 'GET', path: root + '/api/books/search/' + searchRoots[this.state.searchCriteriaType]['root'] + '?'
+                + searchRoots[this.state.searchCriteriaType]['queryParam'] + '=' + encodeURIComponent(this.state.searchCriteriaValue)
+                + "&sort="+encodeURIComponent(this.state.sortField)
+            }).then(
+                    response => {
+                        this.setState({books: response.entity._embedded.books});
+                });
+        } else{
+            client({method: 'GET', path: root + '/api/books' + "?sort="+encodeURIComponent(this.state.sortField)}).done(response => {
+                this.setState({books: response.entity._embedded.books});
+            });
+        }
+    }
+
     componentDidMount() {
         client({method: 'GET', path: root + '/api/books'}).done(response => {
             this.setState({books: response.entity._embedded.books});
@@ -67,25 +130,52 @@ export default class BookList extends React.Component{
 
     render() {
         var book = this.state.books.map(book =>
-                <Book key={book._links.self.href} book={book}
+                <Book key={book.id} book={book}
                       deleteBook={this.deleteBook}
                       editBook={this.editBook}/>
         );
         return (
-            <table className="table table-hover table-bordered table-striped">
-                <thead>
-                <tr>
-                    <th className="col-md-3">Author</th>
-                    <th className="col-md-3">Title</th>
-                    <th className="col-md-3">Categories</th>
-                    <th className="col-md-3">Details</th>
-                </tr>
-                </thead>
-                <tbody>
-                {book}
-                </tbody>
-            </table>
-        )
+            <div>
+                <div className="col-md-12">
+                    <div className="col-md-3">
+                        <select className="form-control" onChange={this.updateCriteriaSelect} value={this.state.searchCriteriaType}>
+                            <option value="whatever">Search on whatever</option>
+                            <option value="title">Search on title</option>
+                            <option value="author">Search on author name</option>
+                            <option value="category">Search on category</option>
+                            <option value="type">Search on type</option>
+                            <option value="format">Search on format</option>
+                            <option value="keyword">Search on keyword</option>
+                        </select>
+                    </div>
+                    <div className="col-md-6">
+                        <input type="text" className="form-control" value={this.state.searchCriteriaValue} onChange={this.updateCriteriaValue}/>
+                    </div>
+                    <div className="col-md-3">
+                        <select className="form-control" onChange={this.updateSortSelect} value={this.state.sortField}>
+                            <option value="title">Sort on title</option>
+                            <option value="isbn10">Sort on ISBN10</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="col-md-12">
+                    <table className="table table-hover table-bordered table-striped">
+                        <thead>
+                        <tr>
+                            <th className="col-md-3">Authors</th>
+                            <th className="col-md-3">Title</th>
+                            <th className="col-md-2">Categories</th>
+                            <th className="col-md-2">ISBN</th>
+                            <th className="col-md-2">Details</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {book}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
     }
 }
 
@@ -127,18 +217,19 @@ class Book extends React.Component{
                     <ul className="unstyled">
                         {
                             this.state.authors.map(function(author){
-                                return <li key={author.firstName + " " + author.lastName}>{author.firstName + " " + author.lastName}</li>
-                            })
+                                return <li key={this.props.book.id + '_' + author.id}>{author.name}</li>
+                            }, this)
                         }
                     </ul>
                 </td>
                 <td>{this.props.book.title}</td>
                 <td>{
                     this.state.categories.map(function(category){
-                        return <li key={category.name}>{category.name}</li>
-                    })
+                        return <li key={this.props.book.id + '_' + category.id}>{category.name}</li>
+                    },this)
                 }
                 </td>
+                <td>{this.props.book.isbn10}</td>
                 <td>
                     <button className="btn btn-danger" type="button" onClick={this.delete}>
                         <span className="glyphicon glyphicon-trash"></span>

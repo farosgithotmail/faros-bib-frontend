@@ -8,7 +8,6 @@ export default class UpdateBookDialog extends React.Component {
     }
 
     render(){
-
         return (
             <Modal show={this.props.show} bsSize="large">
                 <Modal.Header>
@@ -16,7 +15,14 @@ export default class UpdateBookDialog extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <form className="form-horizontal" noValidate>
-
+                        <div className="form-group">
+                            <label className="control-label col-md-3">Title:</label>
+                            <input className="col-md-9" type="text" placeholder={this.props.book.title} ref={this.props.book.title}/>
+                        </div>
+                        <div className="form-group">
+                            <label className="control-label col-md-3">Title:</label>
+                            <input className="col-md-9" type="text" placeholder={this.props.book.title} ref={this.props.book.title}/>
+                        </div>
                     </form>
                 </Modal.Body>
                 <Modal.Footer>
@@ -25,6 +31,4 @@ export default class UpdateBookDialog extends React.Component {
             </Modal>
         );
     }
-
-
 }

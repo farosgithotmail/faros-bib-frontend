@@ -126,6 +126,32 @@
 	var client = __webpack_require__(319);
 	var stompClient = __webpack_require__(367);
 	var root = 'http://localhost:8080';
+	var searchRoots = {
+	    title: {
+	        root: 'by-title',
+	        queryParam: 'title'
+	    },
+	    author: {
+	        root: 'by-author',
+	        queryParam: 'name'
+	    },
+	    type: {
+	        root: 'by-type',
+	        queryParam: 'name'
+	    },
+	    format: {
+	        root: 'by-format',
+	        queryParam: 'name'
+	    },
+	    keyword: {
+	        root: 'by-keyword',
+	        queryParam: 'keywords'
+	    },
+	    whatever: {
+	        root: 'by-whatever',
+	        queryParam: 'whatever'
+	    }
+	};
 	
 	var BookList = function (_React$Component) {
 	    _inherits(BookList, _React$Component);
@@ -135,12 +161,21 @@
 	
 	        var _this = _possibleConstructorReturn(this, (BookList.__proto__ || Object.getPrototypeOf(BookList)).call(this, props));
 	
-	        _this.state = { books: [] };
+	        _this.state = {
+	            books: [],
+	            searchCriteriaType: "author",
+	            searchCriteriaValue: "",
+	            sortField: "title"
+	        };
 	        _this.doAfterBookCreatedEvent = _this.doAfterBookCreatedEvent.bind(_this);
 	        _this.doAfterBookDeletedEvent = _this.doAfterBookDeletedEvent.bind(_this);
 	        _this.deleteBook = _this.deleteBook.bind(_this);
 	        _this.editBook = _this.editBook.bind(_this);
 	        _this.findBookBySelfLink = _this.findBookBySelfLink.bind(_this);
+	        _this.search = _this.search.bind(_this);
+	        _this.updateCriteriaSelect = _this.updateCriteriaSelect.bind(_this);
+	        _this.updateCriteriaValue = _this.updateCriteriaValue.bind(_this);
+	        _this.updateSortSelect = _this.updateSortSelect.bind(_this);
 	        return _this;
 	    }
 	
@@ -188,60 +223,174 @@
 	            console.log("Now editing book " + book._links.self.href);
 	        }
 	    }, {
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
+	        key: 'updateCriteriaSelect',
+	        value: function updateCriteriaSelect(event) {
+	            this.setState({ searchCriteriaType: event.target.value }, this.search);
+	        }
+	    }, {
+	        key: 'updateSortSelect',
+	        value: function updateSortSelect(event) {
+	            this.setState({ sortField: event.target.value }, this.search);
+	        }
+	    }, {
+	        key: 'updateCriteriaValue',
+	        value: function updateCriteriaValue(event) {
+	            this.setState({ searchCriteriaValue: event.target.value }, this.search);
+	        }
+	    }, {
+	        key: 'search',
+	        value: function search() {
 	            var _this3 = this;
 	
+	            if (this.state.searchCriteriaValue) {
+	                client({ method: 'GET', path: root + '/api/books/search/' + searchRoots[this.state.searchCriteriaType]['root'] + '?' + searchRoots[this.state.searchCriteriaType]['queryParam'] + '=' + encodeURIComponent(this.state.searchCriteriaValue) + "&sort=" + encodeURIComponent(this.state.sortField)
+	                }).then(function (response) {
+	                    _this3.setState({ books: response.entity._embedded.books });
+	                });
+	            } else {
+	                client({ method: 'GET', path: root + '/api/books' + "?sort=" + encodeURIComponent(this.state.sortField) }).done(function (response) {
+	                    _this3.setState({ books: response.entity._embedded.books });
+	                });
+	            }
+	        }
+	    }, {
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            var _this4 = this;
+	
 	            client({ method: 'GET', path: root + '/api/books' }).done(function (response) {
-	                _this3.setState({ books: response.entity._embedded.books });
+	                _this4.setState({ books: response.entity._embedded.books });
 	            });
 	            stompClient.register([{ route: '/topic/booksCreated', callback: this.doAfterBookCreatedEvent }, { route: '/topic/booksDeleted', callback: this.doAfterBookDeletedEvent }]);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this4 = this;
+	            var _this5 = this;
 	
 	            var book = this.state.books.map(function (book) {
-	                return React.createElement(Book, { key: book._links.self.href, book: book,
-	                    deleteBook: _this4.deleteBook,
-	                    editBook: _this4.editBook });
+	                return React.createElement(Book, { key: book.id, book: book,
+	                    deleteBook: _this5.deleteBook,
+	                    editBook: _this5.editBook });
 	            });
 	            return React.createElement(
-	                'table',
-	                { className: 'table table-hover table-bordered table-striped' },
+	                'div',
+	                null,
 	                React.createElement(
-	                    'thead',
-	                    null,
+	                    'div',
+	                    { className: 'col-md-12' },
 	                    React.createElement(
-	                        'tr',
-	                        null,
+	                        'div',
+	                        { className: 'col-md-3' },
 	                        React.createElement(
-	                            'th',
-	                            { className: 'col-md-3' },
-	                            'Author'
-	                        ),
+	                            'select',
+	                            { className: 'form-control', onChange: this.updateCriteriaSelect, value: this.state.searchCriteriaType },
+	                            React.createElement(
+	                                'option',
+	                                { value: 'whatever' },
+	                                'Search on whatever'
+	                            ),
+	                            React.createElement(
+	                                'option',
+	                                { value: 'title' },
+	                                'Search on title'
+	                            ),
+	                            React.createElement(
+	                                'option',
+	                                { value: 'author' },
+	                                'Search on author name'
+	                            ),
+	                            React.createElement(
+	                                'option',
+	                                { value: 'category' },
+	                                'Search on category'
+	                            ),
+	                            React.createElement(
+	                                'option',
+	                                { value: 'type' },
+	                                'Search on type'
+	                            ),
+	                            React.createElement(
+	                                'option',
+	                                { value: 'format' },
+	                                'Search on format'
+	                            ),
+	                            React.createElement(
+	                                'option',
+	                                { value: 'keyword' },
+	                                'Search on keyword'
+	                            )
+	                        )
+	                    ),
+	                    React.createElement(
+	                        'div',
+	                        { className: 'col-md-6' },
+	                        React.createElement('input', { type: 'text', className: 'form-control', value: this.state.searchCriteriaValue, onChange: this.updateCriteriaValue })
+	                    ),
+	                    React.createElement(
+	                        'div',
+	                        { className: 'col-md-3' },
 	                        React.createElement(
-	                            'th',
-	                            { className: 'col-md-3' },
-	                            'Title'
-	                        ),
-	                        React.createElement(
-	                            'th',
-	                            { className: 'col-md-3' },
-	                            'Categories'
-	                        ),
-	                        React.createElement(
-	                            'th',
-	                            { className: 'col-md-3' },
-	                            'Details'
+	                            'select',
+	                            { className: 'form-control', onChange: this.updateSortSelect, value: this.state.sortField },
+	                            React.createElement(
+	                                'option',
+	                                { value: 'title' },
+	                                'Sort on title'
+	                            ),
+	                            React.createElement(
+	                                'option',
+	                                { value: 'isbn10' },
+	                                'Sort on ISBN10'
+	                            )
 	                        )
 	                    )
 	                ),
 	                React.createElement(
-	                    'tbody',
-	                    null,
-	                    book
+	                    'div',
+	                    { className: 'col-md-12' },
+	                    React.createElement(
+	                        'table',
+	                        { className: 'table table-hover table-bordered table-striped' },
+	                        React.createElement(
+	                            'thead',
+	                            null,
+	                            React.createElement(
+	                                'tr',
+	                                null,
+	                                React.createElement(
+	                                    'th',
+	                                    { className: 'col-md-3' },
+	                                    'Authors'
+	                                ),
+	                                React.createElement(
+	                                    'th',
+	                                    { className: 'col-md-3' },
+	                                    'Title'
+	                                ),
+	                                React.createElement(
+	                                    'th',
+	                                    { className: 'col-md-2' },
+	                                    'Categories'
+	                                ),
+	                                React.createElement(
+	                                    'th',
+	                                    { className: 'col-md-2' },
+	                                    'ISBN'
+	                                ),
+	                                React.createElement(
+	                                    'th',
+	                                    { className: 'col-md-2' },
+	                                    'Details'
+	                                )
+	                            )
+	                        ),
+	                        React.createElement(
+	                            'tbody',
+	                            null,
+	                            book
+	                        )
+	                    )
 	                )
 	            );
 	        }
@@ -258,25 +407,25 @@
 	    function Book(props) {
 	        _classCallCheck(this, Book);
 	
-	        var _this5 = _possibleConstructorReturn(this, (Book.__proto__ || Object.getPrototypeOf(Book)).call(this, props));
+	        var _this6 = _possibleConstructorReturn(this, (Book.__proto__ || Object.getPrototypeOf(Book)).call(this, props));
 	
-	        _this5.delete = _this5.delete.bind(_this5);
-	        _this5.openUpdateModal = _this5.openUpdateModal.bind(_this5);
-	        _this5.closeUpdateModal = _this5.closeUpdateModal.bind(_this5);
-	        _this5.state = { updateModalOpen: false, authors: [], categories: [] };
-	        return _this5;
+	        _this6.delete = _this6.delete.bind(_this6);
+	        _this6.openUpdateModal = _this6.openUpdateModal.bind(_this6);
+	        _this6.closeUpdateModal = _this6.closeUpdateModal.bind(_this6);
+	        _this6.state = { updateModalOpen: false, authors: [], categories: [] };
+	        return _this6;
 	    }
 	
 	    _createClass(Book, [{
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            var _this6 = this;
+	            var _this7 = this;
 	
 	            client({ method: 'GET', path: this.props.book._links.authors.href }).done(function (response) {
-	                _this6.setState({ authors: response.entity._embedded.authors });
+	                _this7.setState({ authors: response.entity._embedded.authors });
 	            });
 	            client({ method: 'GET', path: this.props.book._links.categories.href }).done(function (response) {
-	                _this6.setState({ categories: response.entity._embedded.categories });
+	                _this7.setState({ categories: response.entity._embedded.categories });
 	            });
 	        }
 	    }, {
@@ -309,10 +458,10 @@
 	                        this.state.authors.map(function (author) {
 	                            return React.createElement(
 	                                'li',
-	                                { key: author.firstName + " " + author.lastName },
-	                                author.firstName + " " + author.lastName
+	                                { key: this.props.book.id + '_' + author.id },
+	                                author.name
 	                            );
-	                        })
+	                        }, this)
 	                    )
 	                ),
 	                React.createElement(
@@ -326,10 +475,15 @@
 	                    this.state.categories.map(function (category) {
 	                        return React.createElement(
 	                            'li',
-	                            { key: category.name },
+	                            { key: this.props.book.id + '_' + category.id },
 	                            category.name
 	                        );
-	                    })
+	                    }, this)
+	                ),
+	                React.createElement(
+	                    'td',
+	                    null,
+	                    this.props.book.isbn10
 	                ),
 	                React.createElement(
 	                    'td',
@@ -386,7 +540,6 @@
 	    _createClass(UpdateBookDialog, [{
 	        key: 'render',
 	        value: function render() {
-	
 	            return React.createElement(
 	                Modal,
 	                { show: this.props.show, bsSize: 'large' },
@@ -402,7 +555,30 @@
 	                React.createElement(
 	                    Modal.Body,
 	                    null,
-	                    React.createElement('form', { className: 'form-horizontal', noValidate: true })
+	                    React.createElement(
+	                        'form',
+	                        { className: 'form-horizontal', noValidate: true },
+	                        React.createElement(
+	                            'div',
+	                            { className: 'form-group' },
+	                            React.createElement(
+	                                'label',
+	                                { className: 'control-label col-md-3' },
+	                                'Title:'
+	                            ),
+	                            React.createElement('input', { className: 'col-md-9', type: 'text', placeholder: this.props.book.title, ref: this.props.book.title })
+	                        ),
+	                        React.createElement(
+	                            'div',
+	                            { className: 'form-group' },
+	                            React.createElement(
+	                                'label',
+	                                { className: 'control-label col-md-3' },
+	                                'Title:'
+	                            ),
+	                            React.createElement('input', { className: 'col-md-9', type: 'text', placeholder: this.props.book.title, ref: this.props.book.title })
+	                        )
+	                    )
 	                ),
 	                React.createElement(
 	                    Modal.Footer,
