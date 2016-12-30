@@ -159,20 +159,9 @@ export default class BookList extends React.Component{
                     </div>
                 </div>
                 <div className="col-md-12">
-                    <table className="table table-hover table-bordered table-striped">
-                        <thead>
-                        <tr>
-                            <th className="col-md-3">Authors</th>
-                            <th className="col-md-3">Title</th>
-                            <th className="col-md-2">Categories</th>
-                            <th className="col-md-2">ISBN</th>
-                            <th className="col-md-2">Details</th>
-                        </tr>
-                        </thead>
-                        <tbody>
+                    <div className="row">
                         {book}
-                        </tbody>
-                    </table>
+                    </div>
                 </div>
             </div>
         );
@@ -211,35 +200,61 @@ class Book extends React.Component{
     }
 
     render() {
+        var style = {
+            inner:{
+                border: "1px solid"
+            },
+            outer:{
+                "marginTop": "1%",
+                "marginBottom": "1%"
+            }
+        };
+
         return (
-            <tr>
-                <td>
-                    <ul className="unstyled">
-                        {
-                            this.state.authors.map(function(author){
-                                return <li key={this.props.book.id + '_' + author.id}>{author.name}</li>
-                            }, this)
-                        }
-                    </ul>
-                </td>
-                <td>{this.props.book.title}</td>
-                <td>{
-                    this.state.categories.map(function(category){
-                        return <li key={this.props.book.id + '_' + category.id}>{category.name}</li>
-                    },this)
-                }
-                </td>
-                <td>{this.props.book.isbn10}</td>
-                <td>
-                    <button className="btn btn-danger" type="button" onClick={this.delete}>
-                        <span className="glyphicon glyphicon-trash"></span>
-                    </button>
-                    <button className="btn btn-default" type="button" onClick={this.openUpdateModal}>
-                        <span className="glyphicon glyphicon-edit"></span>
-                    </button>
-                    <UpdateBookDialog show={this.state.updateModalOpen} book={this.props.book} close={this.closeUpdateModal}/>
-                </td>
-            </tr>
+            <div className="col-sm-4" style={style.outer}>
+                <div className="col-md-12 alert-danger" style={style.inner}>
+                    <h3>{this.props.book.title}</h3>
+                    <form className="form-horizontal">
+                        <div className="form-group">
+                            <label className="control-label col-md-3">Auteurs:</label>
+                            <div className="col-md-9">
+                                <p className="form-control-static">
+                                    {
+                                        this.state.authors.map(function(author){
+                                            return author.name;
+                                        }).join(", ")
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="control-label col-md-3">ISBN:</label>
+                            <div className="col-md-9">
+                                <p className="form-control-static">{this.props.book.isbn10}</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            //<tr>
+            //    <td>{this.props.book.title}</td>
+            //    <td>{
+            //        this.state.categories.map(function(category){
+            //            return <li key={this.props.book.id + '_' + category.id}>{category.name}</li>
+            //        },this)
+            //    }
+            //    </td>
+            //    <td>{this.props.book.isbn10}</td>
+            //    <td>
+            //        <button className="btn btn-danger" type="button" onClick={this.delete}>
+            //            <span className="glyphicon glyphicon-trash"></span>
+            //        </button>
+            //        <button className="btn btn-default" type="button" onClick={this.openUpdateModal}>
+            //            <span className="glyphicon glyphicon-edit"></span>
+            //        </button>
+            //        <UpdateBookDialog show={this.state.updateModalOpen} book={this.props.book} close={this.closeUpdateModal}/>
+            //    </td>
+            //</tr>
         )
     }
 }
