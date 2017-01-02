@@ -14,16 +14,7 @@ export default class UpdateBookDialog extends React.Component {
                     <Modal.Title id="contained-modal-title-lg">Edit Book</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <form className="form-horizontal" noValidate>
-                        <div className="form-group">
-                            <label className="control-label col-md-3">Title:</label>
-                            <input className="col-md-9" type="text" placeholder={this.props.book.title} ref={this.props.book.title}/>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-md-3">Title:</label>
-                            <input className="col-md-9" type="text" placeholder={this.props.book.title} ref={this.props.book.title}/>
-                        </div>
-                    </form>
+                    <h2>TODO</h2>
                 </Modal.Body>
                 <Modal.Footer>
                     <button type="button" className="btn btn-primary" onClick={this.props.close}>Close</button>

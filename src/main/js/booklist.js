@@ -16,6 +16,10 @@ const searchRoots = {
         root: 'by-type',
         queryParam: 'name'
     },
+    category:{
+        root: 'by-category',
+        queryParam: 'name'
+    },
     format:{
         root: 'by-format',
         queryParam: 'name'
@@ -29,7 +33,12 @@ const searchRoots = {
         queryParam: 'whatever'
     }
 };
-import UpdateBookDialog from './updateBookDialog';
+import CreateBookDialog from './createBookDialog';
+import Book from "./book";
+const Col = require('react-bootstrap/lib/Col');
+const Button = require('react-bootstrap/lib/Button');
+const Glyphicon = require('react-bootstrap/lib/Glyphicon');
+const FormControl = require('react-bootstrap/lib/FormControl');
 
 export default class BookList extends React.Component{
 
@@ -39,17 +48,19 @@ export default class BookList extends React.Component{
             books:[],
             searchCriteriaType: "author",
             searchCriteriaValue: "",
-            sortField: "title"
+            sortField: "title",
+            createModalOpen: false
         };
         this.doAfterBookCreatedEvent = this.doAfterBookCreatedEvent.bind(this);
         this.doAfterBookDeletedEvent = this.doAfterBookDeletedEvent.bind(this);
-        this.deleteBook = this.deleteBook.bind(this);
-        this.editBook = this.editBook.bind(this);
         this.findBookBySelfLink = this.findBookBySelfLink.bind(this);
         this.search = this.search.bind(this);
         this.updateCriteriaSelect = this.updateCriteriaSelect.bind(this);
         this.updateCriteriaValue = this.updateCriteriaValue.bind(this);
         this.updateSortSelect = this.updateSortSelect.bind(this);
+        this.openCreateModal = this.openCreateModal.bind(this);
+        this.closeCreateModal = this.closeCreateModal.bind(this);
+        this.delete = this.delete.bind(this);
     }
 
     findBookBySelfLink(selfLink){
@@ -76,7 +87,7 @@ export default class BookList extends React.Component{
         }
     }
 
-    deleteBook(book){
+    delete(book){
         client({method: 'DELETE', path: book._links.self.href}).then(
                 response => {
                     //the websocket delete book event will handle the removal from the books array.
@@ -84,10 +95,6 @@ export default class BookList extends React.Component{
                 error => {
             console.log("Error occured deleting book with ref: " + book._links.self.href + ": (" + error + ")");
         });
-    }
-
-    editBook(book){
-        console.log("Now editing book " + book._links.self.href);
     }
 
     updateCriteriaSelect(event){
@@ -100,6 +107,14 @@ export default class BookList extends React.Component{
 
     updateCriteriaValue(event){
         this.setState({searchCriteriaValue: event.target.value}, this.search);
+    }
+
+    openCreateModal(){
+        this.setState({createModalOpen: true});
+    }
+
+    closeCreateModal(){
+        this.setState({createModalOpen: false});
     }
 
     search(){
@@ -130,131 +145,47 @@ export default class BookList extends React.Component{
 
     render() {
         var book = this.state.books.map(book =>
-                <Book key={book.id} book={book}
-                      deleteBook={this.deleteBook}
-                      editBook={this.editBook}/>
+                <Book key={book.id} book={book} delete={this.delete}/>
         );
         return (
-            <div>
-                <div className="col-md-12">
-                    <div className="col-md-3">
-                        <select className="form-control" onChange={this.updateCriteriaSelect} value={this.state.searchCriteriaType}>
-                            <option value="whatever">Search on whatever</option>
-                            <option value="title">Search on title</option>
-                            <option value="author">Search on author name</option>
-                            <option value="category">Search on category</option>
-                            <option value="type">Search on type</option>
-                            <option value="format">Search on format</option>
-                            <option value="keyword">Search on keyword</option>
-                        </select>
-                    </div>
-                    <div className="col-md-6">
-                        <input type="text" className="form-control" value={this.state.searchCriteriaValue} onChange={this.updateCriteriaValue}/>
-                    </div>
-                    <div className="col-md-3">
-                        <select className="form-control" onChange={this.updateSortSelect} value={this.state.sortField}>
-                            <option value="title">Sort on title</option>
-                            <option value="isbn10">Sort on ISBN10</option>
-                        </select>
-                    </div>
-                </div>
-                <div className="col-md-12">
-                    <div className="row">
-                        {book}
-                    </div>
-                </div>
-            </div>
+            <Col md={12}>
+                <Col md={12}>
+                    <h2>Books</h2>
+                </Col>
+                <Col md={3}>
+                    <select className="form-control" onChange={this.updateCriteriaSelect} value={this.state.searchCriteriaType}>
+                        <option value="whatever">Search on whatever</option>
+                        <option value="title">Search on title</option>
+                        <option value="author">Search on author name</option>
+                        <option value="category">Search on category</option>
+                        <option value="type">Search on type</option>
+                        <option value="format">Search on format</option>
+                        <option value="keyword">Search on keyword</option>
+                    </select>
+                </Col>
+                <Col md={6}>
+                    <FormControl type="text" value={this.state.searchCriteriaValue} onChange={this.updateCriteriaValue}/>
+                </Col>
+                <Col md={3}>
+                    <select className="form-control" onChange={this.updateSortSelect} value={this.state.sortField}>
+                        <option value="title">Sort on title</option>
+                        <option value="isbn10">Sort on ISBN10</option>
+                    </select>
+                </Col>
+                <Col md={12}>
+                    <hr/>
+                </Col>
+                {book}
+                <Col md={12}>
+                    <hr/>
+                </Col>
+                <Col md={12}>
+                    <Button  type="button" onClick={this.openCreateModal}>
+                        <Glyphicon glyph="plus"/> Add book
+                    </Button>
+                </Col>
+                <CreateBookDialog show={this.state.createModalOpen} close={this.closeCreateModal}/>
+            </Col>
         );
-    }
-}
-
-class Book extends React.Component{
-
-    constructor(props) {
-        super(props);
-        this.delete = this.delete.bind(this);
-        this.openUpdateModal = this.openUpdateModal.bind(this);
-        this.closeUpdateModal = this.closeUpdateModal.bind(this);
-        this.state = {updateModalOpen: false, authors: [], categories: []};
-    }
-
-    componentDidMount() {
-        client({method: 'GET', path: this.props.book._links.authors.href}).done(response => {
-            this.setState({authors: response.entity._embedded.authors});
-        });
-        client({method: 'GET', path: this.props.book._links.categories.href}).done(response => {
-            this.setState({categories: response.entity._embedded.categories});
-        });
-    }
-
-    delete(){
-        this.props.deleteBook(this.props.book);
-    }
-
-    openUpdateModal(){
-        this.setState({updateModalOpen: true});
-    }
-
-    closeUpdateModal(){
-        this.setState({updateModalOpen: false});
-    }
-
-    render() {
-        var style = {
-            inner:{
-                border: "1px solid"
-            },
-            outer:{
-                "marginTop": "1%",
-                "marginBottom": "1%"
-            }
-        };
-
-        return (
-            <div className="col-sm-4" style={style.outer}>
-                <div className="col-md-12 alert-danger" style={style.inner}>
-                    <h3>{this.props.book.title}</h3>
-                    <form className="form-horizontal">
-                        <div className="form-group">
-                            <label className="control-label col-md-3">Auteurs:</label>
-                            <div className="col-md-9">
-                                <p className="form-control-static">
-                                    {
-                                        this.state.authors.map(function(author){
-                                            return author.name;
-                                        }).join(", ")
-                                    }
-                                </p>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-md-3">ISBN:</label>
-                            <div className="col-md-9">
-                                <p className="form-control-static">{this.props.book.isbn10}</p>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            //<tr>
-            //    <td>{this.props.book.title}</td>
-            //    <td>{
-            //        this.state.categories.map(function(category){
-            //            return <li key={this.props.book.id + '_' + category.id}>{category.name}</li>
-            //        },this)
-            //    }
-            //    </td>
-            //    <td>{this.props.book.isbn10}</td>
-            //    <td>
-            //        <button className="btn btn-danger" type="button" onClick={this.delete}>
-            //            <span className="glyphicon glyphicon-trash"></span>
-            //        </button>
-            //        <button className="btn btn-default" type="button" onClick={this.openUpdateModal}>
-            //            <span className="glyphicon glyphicon-edit"></span>
-            //        </button>
-            //        <UpdateBookDialog show={this.state.updateModalOpen} book={this.props.book} close={this.closeUpdateModal}/>
-            //    </td>
-            //</tr>
-        )
     }
 }
