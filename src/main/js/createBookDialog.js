@@ -141,7 +141,8 @@ export default class CreateBookDialog extends React.Component {
                 summary: this.state.summary,
                 images: this.state.images
             },
-            headers: {'Content-Type': 'application/json'}}).done(response => {
+            headers: {'Content-Type': 'application/json'}}
+        ).done(response => {
                 this.props.close();
         });
     }
