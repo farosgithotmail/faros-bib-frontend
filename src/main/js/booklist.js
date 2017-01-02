@@ -150,17 +150,17 @@ export default class BookList extends React.Component{
         return (
             <Col md={12}>
                 <Col md={12}>
-                    <h2>Books</h2>
+                    <h2>Boeken</h2>
                 </Col>
                 <Col md={3}>
                     <select className="form-control" onChange={this.updateCriteriaSelect} value={this.state.searchCriteriaType}>
-                        <option value="whatever">Search on whatever</option>
-                        <option value="title">Search on title</option>
-                        <option value="author">Search on author name</option>
-                        <option value="category">Search on category</option>
-                        <option value="type">Search on type</option>
-                        <option value="format">Search on format</option>
-                        <option value="keyword">Search on keyword</option>
+                        <option value="whatever">Zoek op eender wat</option>
+                        <option value="title">Zoek op titel</option>
+                        <option value="author">Zoek op auteur</option>
+                        <option value="category">Zoek op categorie</option>
+                        <option value="type">Zoek op type</option>
+                        <option value="format">Zoek op formaat</option>
+                        <option value="keyword">Zoek op keyword</option>
                     </select>
                 </Col>
                 <Col md={6}>
@@ -168,8 +168,8 @@ export default class BookList extends React.Component{
                 </Col>
                 <Col md={3}>
                     <select className="form-control" onChange={this.updateSortSelect} value={this.state.sortField}>
-                        <option value="title">Sort on title</option>
-                        <option value="isbn10">Sort on ISBN10</option>
+                        <option value="title">Sorteer op titel</option>
+                        <option value="isbn10">Sorteer op iSBN 10</option>
                     </select>
                 </Col>
                 <Col md={12}>
@@ -181,7 +181,7 @@ export default class BookList extends React.Component{
                 </Col>
                 <Col md={12}>
                     <Button  type="button" onClick={this.openCreateModal}>
-                        <Glyphicon glyph="plus"/> Add book
+                        <Glyphicon glyph="plus"/> Voeg nieuw boek toe
                     </Button>
                 </Col>
                 <CreateBookDialog show={this.state.createModalOpen} close={this.closeCreateModal}/>

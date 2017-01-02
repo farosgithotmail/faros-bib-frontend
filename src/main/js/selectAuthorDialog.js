@@ -55,14 +55,14 @@ export default class SelectAuthorDialog extends React.Component {
         return (
             <Modal show={this.props.show} bsSize="small">
                 <Modal.Header>
-                    <Modal.Title id="contained-modal-title-lg">Select Author</Modal.Title>
+                    <Modal.Title id="contained-modal-title-lg">Selecteer auteur</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form horizontal>
                         <FormGroup>
                             <Col md={12}>
                                 <FormControl componentClass="select" value={this.state.selectedAuthor} onChange={this.handleAuthorSelection}>
-                                    <option value="">Select author</option>
+                                    <option value="">-- Selecteer hieronder --</option>
                                     {authors}
                                 </FormControl>
                             </Col>
@@ -72,10 +72,10 @@ export default class SelectAuthorDialog extends React.Component {
                 <Modal.Footer>
                     <ButtonToolbar>
                         <Button bsStyle="primary" onClick={this.submit}>
-                            <Glyphicon glyph="ok"/> Select
+                            <Glyphicon glyph="ok"/> Bevestigen
                         </Button>
                         <Button bsStyle="primary" onClick={this.props.cancel}>
-                            <Glyphicon glyph="remove"/> Cancel
+                            <Glyphicon glyph="remove"/> Annuleren
                         </Button>
                     </ButtonToolbar>
                 </Modal.Footer>

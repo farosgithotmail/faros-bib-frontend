@@ -103,8 +103,8 @@ export default class Book extends React.Component{
                             <FormGroup>
                                 <Col md={12}>
                                     <ButtonToolbar>
-                                        <Button type="button" bsStyle="danger" onClick={() => this.props.delete(this.props.book)}><Glyphicon glyph="trash"/> Delete</Button>
-                                        <Button type="button" disabled bsStyle="primary" onClick={this.openUpdateModal}><Glyphicon glyph="edit"/> Edit</Button>
+                                        <Button type="button" bsStyle="danger" onClick={() => this.props.delete(this.props.book)}><Glyphicon glyph="trash"/> Verwijder</Button>
+                                        <Button type="button" disabled bsStyle="primary" onClick={this.openUpdateModal}><Glyphicon glyph="edit"/> Wijzig</Button>
                                         <UpdateBookDialog show={this.state.updateModalOpen} book={this.props.book} close={this.closeUpdateModal}/>
                                     </ButtonToolbar>
                                 </Col>

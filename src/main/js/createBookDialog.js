@@ -151,16 +151,16 @@ export default class CreateBookDialog extends React.Component {
         return (
             <Modal show={this.props.show} bsSize="large">
                 <Modal.Header>
-                    <Modal.Title id="contained-modal-title-lg">Create Book</Modal.Title>
+                    <Modal.Title id="contained-modal-title-lg">Creëer nieuw boek</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form horizontal>
                         <FormGroup>
                             <Col md={3}>
-                                <ControlLabel>Title:</ControlLabel>
+                                <ControlLabel>Titel:</ControlLabel>
                             </Col>
                             <Col md={9}>
-                                <FormControl type="text" placeholder="A title" onChange={this.handleTitle}/>
+                                <FormControl type="text" placeholder="Een titel" onChange={this.handleTitle}/>
                             </Col>
                         </FormGroup>
                         <FormGroup>
@@ -181,7 +181,7 @@ export default class CreateBookDialog extends React.Component {
                                                     <td>{author.name}</td>
                                                     <td>
                                                         <Button bsStyle="primary" type="button" onClick={() => this.deleteAuthor(author)}>
-                                                            <Glyphicon glyph="thrash"/> Remove
+                                                            <Glyphicon glyph="thrash"/> Verwijder
                                                         </Button>
                                                     </td>
                                                 </tr>
@@ -190,7 +190,7 @@ export default class CreateBookDialog extends React.Component {
                                         <tr>
                                             <td colSpan="2">
                                                 <Button bsStyle="primary" type="button" onClick={this.openSelectAuthorModal}>
-                                                    <Glyphicon glyph="plus"/> Add existing author
+                                                    <Glyphicon glyph="plus"/> Voeg bestaande auteur toe
                                                 </Button>
                                                 <SelectAuthorDialog show={this.state.selectAuthorModalOpen} add={this.addAuthor} cancel={this.closeSelectAuthorModal}/>
                                             </td>
@@ -217,7 +217,7 @@ export default class CreateBookDialog extends React.Component {
                         </FormGroup>
                         <FormGroup>
                             <Col md={3}>
-                                <ControlLabel>Language:</ControlLabel>
+                                <ControlLabel>Taal:</ControlLabel>
                             </Col>
                             <Col md={9}>
                                 <FormControl componentClass="select" value={this.state.language} onChange={this.handleLanguage}>
@@ -231,7 +231,7 @@ export default class CreateBookDialog extends React.Component {
                         </FormGroup>
                         <FormGroup>
                             <Col md={3}>
-                                <ControlLabel>Pages:</ControlLabel>
+                                <ControlLabel>Pagina's:</ControlLabel>
                             </Col>
                             <Col md={9}>
                                 <FormControl type="number" placeholder="250" onChange={this.handlePages}/>
@@ -239,7 +239,7 @@ export default class CreateBookDialog extends React.Component {
                         </FormGroup>
                         <FormGroup>
                             <Col md={3}>
-                                <ControlLabel>Release date:</ControlLabel>
+                                <ControlLabel>Uitgavedatum:</ControlLabel>
                             </Col>
                             <Col md={9}>
                                 <DatePicker id="releaseDate-datepicker" value={this.state.releaseDate} onChange={this.handleReleaseDate} />
@@ -247,7 +247,7 @@ export default class CreateBookDialog extends React.Component {
                         </FormGroup>
                         <FormGroup>
                             <Col md={3}>
-                                <ControlLabel>Edition:</ControlLabel>
+                                <ControlLabel>Editie:</ControlLabel>
                             </Col>
                             <Col md={9}>
                                 <FormControl type="number" placeholder="1" onChange={this.handleEdition}/>
@@ -255,7 +255,7 @@ export default class CreateBookDialog extends React.Component {
                         </FormGroup>
                         <FormGroup>
                             <Col md={3}>
-                                <ControlLabel>Summary:</ControlLabel>
+                                <ControlLabel>Samenvatting:</ControlLabel>
                             </Col>
                             <Col md={9}>
                                 <FormControl componentClass="textarea" placeholder="A summary of the book" onChange={this.handleSummary}/>
@@ -266,10 +266,10 @@ export default class CreateBookDialog extends React.Component {
                 <Modal.Footer>
                     <ButtonToolbar>
                         <Button bsStyle="primary" type="button" onClick={this.submit}>
-                            <Glyphicon glyph="ok"/> Create
+                            <Glyphicon glyph="ok"/> Creëer
                         </Button>
                         <Button bsStyle="primary" type="button" onClick={this.props.close}>
-                            <Glyphicon glyph="remove"/> Cancel
+                            <Glyphicon glyph="remove"/> Annuleer
                         </Button>
                     </ButtonToolbar>
                 </Modal.Footer>
