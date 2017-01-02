@@ -5,10 +5,12 @@ const Form = require('react-bootstrap/lib/Form');
 const FormGroup = require('react-bootstrap/lib/FormGroup');
 const Col = require('react-bootstrap/lib/Col');
 const FormControl = require('react-bootstrap/lib/FormControl');
+const FormControlStatic = require('react-bootstrap/lib/FormControlStatic');
 const ControlLabel = require('react-bootstrap/lib/ControlLabel');
 const ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
 const Button = require('react-bootstrap/lib/Button');
 const Glyphicon = require('react-bootstrap/lib/Glyphicon');
+const InputGroup = require('react-bootstrap/lib/InputGroup');
 const DatePicker = require("react-bootstrap-date-picker");
 import SelectDialog from "./selectDialog"
 
@@ -36,7 +38,9 @@ export default class CreateBookDialog extends React.Component {
             summary: "This is a summary",
             images:[],
             selectAuthorModalOpen: false,
-            selectCategoryModalOpen: false
+            selectCategoryModalOpen: false,
+            selecttypeModalOpen: false,
+            selectFormatModalOpen: false
         };
         this.handleTitle = this.handleTitle.bind(this);
         this.handleIsbn10 = this.handleIsbn10.bind(this);
@@ -57,6 +61,14 @@ export default class CreateBookDialog extends React.Component {
         this.addCategory = this.addCategory.bind(this);
         this.openSelectCategoryModal = this.openSelectCategoryModal.bind(this);
         this.closeSelectCategoryModal = this.closeSelectCategoryModal.bind(this);
+
+        this.setType = this.setType.bind(this);
+        this.openSelectTypeModal = this.openSelectTypeModal.bind(this);
+        this.closeSelectTypeModal = this.closeSelectTypeModal.bind(this);
+
+        this.setFormat = this.setFormat.bind(this);
+        this.openSelectFormatModal = this.openSelectFormatModal.bind(this);
+        this.closeSelectFormatModal = this.closeSelectFormatModal.bind(this);
     }
 
     handleTitle(event){
@@ -149,9 +161,45 @@ export default class CreateBookDialog extends React.Component {
         })
     }
 
+    setType(type){
+        this.setState({
+            type: type,
+            selectTypeModalOpen: false
+        })
+    }
+    openSelectTypeModal(){
+        this.setState({
+            selectTypeModalOpen: true
+        })
+    }
+    closeSelectTypeModal(){
+        this.setState({
+            selectTypeModalOpen: false
+        })
+    }
+
+    setFormat(format){
+        this.setState({
+            format: format,
+            selectFormatModalOpen: false
+        })
+    }
+    openSelectFormatModal(){
+        this.setState({
+            selectFormatModalOpen: true
+        })
+    }
+    closeSelectFormatModal(){
+        this.setState({
+            selectFormatModalOpen: false
+        })
+    }
+
     submit(){
         var authorLinks = this.state.authors.map(author => author._links.self.href);
         var categoryLinks = this.state.categories.map(category => category._links.self.href);
+        var typeLink = this.state.type ? this.state.type._links.self.href : undefined;
+        var formatLink = this.state.format ? this.state.format._links.self.href : undefined;
 
         client({
             method: 'POST',
@@ -167,8 +215,8 @@ export default class CreateBookDialog extends React.Component {
                 keywords: this.state.keywords,
                 releaseDate: this.state.releaseDate,
                 edition: this.state.edition,
-                type: this.state.type,
-                format: this.state.format,
+                type: typeLink,
+                format: formatLink,
                 summary: this.state.summary,
                 images: this.state.images
             },
@@ -332,6 +380,52 @@ export default class CreateBookDialog extends React.Component {
                             </Col>
                             <Col md={9}>
                                 <FormControl type="number" placeholder="1" onChange={this.handleEdition}/>
+                            </Col>
+                        </FormGroup>
+                        <FormGroup>
+                            <Col md={3}>
+                                <ControlLabel>Type:</ControlLabel>
+                            </Col>
+                            <Col md={9}>
+                                <InputGroup>
+                                    <FormControl.Static type="text">{this.state.type ? this.state.type.name : ""}</FormControl.Static>
+                                    <InputGroup.Button>
+                                        <Button bsStyle="primary" type="button" onClick={this.openSelectTypeModal}>
+                                            <Glyphicon glyph="plus"/> Selecteer type
+                                        </Button>
+                                    </InputGroup.Button>
+                                    <SelectDialog show={this.state.selectTypeModalOpen}
+                                                  add={this.setType}
+                                                  cancel={this.closeSelectTypeModal}
+                                                  collectionUrl={root + "/api/bookTypes"}
+                                                  collectionName={"bookTypes"}
+                                                  collectionLabel={"name"}
+                                                  title={"Selecteer type"}
+                                        />
+                                </InputGroup>
+                            </Col>
+                        </FormGroup>
+                        <FormGroup>
+                            <Col md={3}>
+                                <ControlLabel>Format:</ControlLabel>
+                            </Col>
+                            <Col md={9}>
+                                <InputGroup>
+                                    <FormControl.Static type="text">{this.state.format ? this.state.format.name : ""}</FormControl.Static>
+                                    <InputGroup.Button>
+                                        <Button bsStyle="primary" type="button" onClick={this.openSelectFormatModal}>
+                                            <Glyphicon glyph="plus"/> Selecteer formaat
+                                        </Button>
+                                    </InputGroup.Button>
+                                    <SelectDialog show={this.state.selectFormatModalOpen}
+                                                  add={this.setFormat}
+                                                  cancel={this.closeSelectFormatModal}
+                                                  collectionUrl={root + "/api/bookFormats"}
+                                                  collectionName={"bookFormats"}
+                                                  collectionLabel={"name"}
+                                                  title={"Selecteer formaat"}
+                                        />
+                                </InputGroup>
                             </Col>
                         </FormGroup>
                         <FormGroup>
