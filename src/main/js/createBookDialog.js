@@ -10,7 +10,7 @@ const ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
 const Button = require('react-bootstrap/lib/Button');
 const Glyphicon = require('react-bootstrap/lib/Glyphicon');
 const DatePicker = require("react-bootstrap-date-picker");
-import SelectAuthorDialog from "./selectAuthorDialog"
+import SelectDialog from "./selectDialog"
 
 const client = require('./client');
 const root = 'http://localhost:8080';
@@ -35,7 +35,8 @@ export default class CreateBookDialog extends React.Component {
             format: undefined,
             summary: "This is a summary",
             images:[],
-            selectAuthorModalOpen: false
+            selectAuthorModalOpen: false,
+            selectCategoryModalOpen: false
         };
         this.handleTitle = this.handleTitle.bind(this);
         this.handleIsbn10 = this.handleIsbn10.bind(this);
@@ -46,10 +47,16 @@ export default class CreateBookDialog extends React.Component {
         this.handleEdition = this.handleEdition.bind(this);
         this.handleSummary = this.handleSummary.bind(this);
         this.submit = this.submit.bind(this);
+
         this.deleteAuthor = this.deleteAuthor.bind(this);
         this.addAuthor = this.addAuthor.bind(this);
         this.openSelectAuthorModal = this.openSelectAuthorModal.bind(this);
         this.closeSelectAuthorModal = this.closeSelectAuthorModal.bind(this);
+
+        this.deleteCategory = this.deleteCategory.bind(this);
+        this.addCategory = this.addCategory.bind(this);
+        this.openSelectCategoryModal = this.openSelectCategoryModal.bind(this);
+        this.closeSelectCategoryModal = this.closeSelectCategoryModal.bind(this);
     }
 
     handleTitle(event){
@@ -97,7 +104,7 @@ export default class CreateBookDialog extends React.Component {
         var newData = this.state.authors.slice();
         newData.splice(authorIndex,1);
         this.setState({
-           authors: newData
+            authors: newData
         });
     }
     addAuthor(author){
@@ -117,8 +124,34 @@ export default class CreateBookDialog extends React.Component {
         })
     }
 
+    deleteCategory(category){
+        var categoryIndex = this.state.categories.indexOf(category);
+        var newData = this.state.categories.slice();
+        newData.splice(categoryIndex,1);
+        this.setState({
+            categories: newData
+        });
+    }
+    addCategory(category){
+        this.setState({
+            categories: this.state.categories.concat([category]),
+            selectCategoryModalOpen: false
+        })
+    }
+    openSelectCategoryModal(){
+        this.setState({
+            selectCategoryModalOpen: true
+        })
+    }
+    closeSelectCategoryModal(){
+        this.setState({
+            selectCategoryModalOpen: false
+        })
+    }
+
     submit(){
         var authorLinks = this.state.authors.map(author => author._links.self.href);
+        var categoryLinks = this.state.categories.map(category => category._links.self.href);
 
         client({
             method: 'POST',
@@ -130,9 +163,7 @@ export default class CreateBookDialog extends React.Component {
                 isbn13: this.state.isbn13,
                 language: this.state.language,
                 pages: this.state.pages,
-                categories: this.state.categories.map(category => function(){
-                    return category._links.self.href
-                }),
+                categories: categoryLinks,
                 keywords: this.state.keywords,
                 releaseDate: this.state.releaseDate,
                 edition: this.state.edition,
@@ -192,9 +223,59 @@ export default class CreateBookDialog extends React.Component {
                                                 <Button bsStyle="primary" type="button" onClick={this.openSelectAuthorModal}>
                                                     <Glyphicon glyph="plus"/> Voeg bestaande auteur toe
                                                 </Button>
-                                                <SelectAuthorDialog show={this.state.selectAuthorModalOpen} add={this.addAuthor} cancel={this.closeSelectAuthorModal}/>
+                                                <SelectDialog show={this.state.selectAuthorModalOpen}
+                                                                    add={this.addAuthor}
+                                                                    cancel={this.closeSelectAuthorModal}
+                                                                    collectionUrl={root + "/api/authors"}
+                                                                    collectionName={"authors"}
+                                                                    collectionLabel={"name"}
+                                                                    title={"Selecteer auteur"}
+                                                    />
                                             </td>
                                         </tr>
+                                    </tbody>
+                                </table>
+                            </Col>
+                        </FormGroup>
+                        <FormGroup>
+                            <Col md={3}>
+                                <ControlLabel>Categorieën:</ControlLabel>
+                            </Col>
+                            <Col md={9}>
+                                <table className="table table-striped table-bordered">
+                                    <tbody>
+                                    {
+                                        this.state.categories.length === 0 ?
+                                            <tr>
+                                                <td className="col-md-12" colSpan="2">Geen categorieën</td>
+                                            </tr>
+                                            :
+                                            this.state.categories.map(category =>
+                                                    <tr key={category.id}>
+                                                        <td>{category.name}</td>
+                                                        <td>
+                                                            <Button bsStyle="primary" type="button" onClick={() => this.deleteCategory(category)}>
+                                                                <Glyphicon glyph="thrash"/> Verwijder
+                                                            </Button>
+                                                        </td>
+                                                    </tr>
+                                            )
+                                    }
+                                    <tr>
+                                        <td colSpan="2">
+                                            <Button bsStyle="primary" type="button" onClick={this.openSelectCategoryModal}>
+                                                <Glyphicon glyph="plus"/> Voeg bestaande categorie toe
+                                            </Button>
+                                            <SelectDialog show={this.state.selectCategoryModalOpen}
+                                                          add={this.addCategory}
+                                                          cancel={this.closeSelectCategoryModal}
+                                                          collectionUrl={root + "/api/categories"}
+                                                          collectionName={"categories"}
+                                                          collectionLabel={"name"}
+                                                          title={"Selecteer categorie"}
+                                                />
+                                        </td>
+                                    </tr>
                                     </tbody>
                                 </table>
                             </Col>

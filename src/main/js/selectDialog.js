@@ -12,58 +12,58 @@ const ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
 const Button = require('react-bootstrap/lib/Button');
 const Glyphicon = require('react-bootstrap/lib/Glyphicon');
 
-export default class SelectAuthorDialog extends React.Component {
+export default class SelectDialog extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            authors: [],
-            selectedAuthor: ""
+            collection: [],
+            selectedId: ""
         };
-        this.handleAuthorSelection = this.handleAuthorSelection.bind(this);
+        this.handleSelection = this.handleSelection.bind(this);
         this.submit = this.submit.bind(this);
     }
     componentDidMount() {
-        client({method: 'GET', path: root + "/api/authors"}).done(response => {
-            this.setState({authors: response.entity._embedded.authors});
+        client({method: 'GET', path: this.props.collectionUrl}).done(response => {
+            this.setState({collection: response.entity._embedded[this.props.collectionName]});
         });
     }
-    handleAuthorSelection(event){
+    handleSelection(event){
         this.setState({
-            selectedAuthor: event.target.value
+            selectedId: event.target.value
         })
     }
     submit(){
-        if(this.state.selectedAuthor){
-            var foundAuthor = undefined;
-            this.state.authors.forEach(
-                function(author) {
-                    if (author.id == this.state.selectedAuthor) {
-                        foundAuthor = author;
+        if(this.state.selectedId){
+            var foundObject = undefined;
+            this.state.collection.forEach(
+                function(item) {
+                    if (item.id == this.state.selectedId) {
+                        foundObject = item;
                     }
                 }, this
             );
-            this.props.add(foundAuthor);
+            this.props.add(foundObject);
         }
     }
 
     render(){
 
-        var authors = this.state.authors.map(author =>
-            <option key={author.id} value={author.id}>{author.name}</option>
+        var items = this.state.collection.map(item =>
+                <option key={item.id} value={item.id}>{item[this.props.collectionLabel]}</option>
         );
 
         return (
             <Modal show={this.props.show} bsSize="small">
                 <Modal.Header>
-                    <Modal.Title id="contained-modal-title-lg">Selecteer auteur</Modal.Title>
+                    <Modal.Title id="contained-modal-title-lg">{this.props.title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form horizontal>
                         <FormGroup>
                             <Col md={12}>
-                                <FormControl componentClass="select" value={this.state.selectedAuthor} onChange={this.handleAuthorSelection}>
+                                <FormControl componentClass="select" value={this.state.selectedId} onChange={this.handleSelection}>
                                     <option value="">-- Selecteer hieronder --</option>
-                                    {authors}
+                                    {items}
                                 </FormControl>
                             </Col>
                         </FormGroup>
